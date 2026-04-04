@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/outreach/cron/send",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/content",
+      "schedule": "0 8 * * 1"
+    },
+    {
+      "path": "/api/cron/video-pipeline",
+      "schedule": "*/15 * * * *"
+    }
+  ]
+}

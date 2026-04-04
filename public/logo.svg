@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Outer violet flame -->
+  <path d="M50 8
+    C44 18, 32 28, 30 42
+    C28 54, 33 63, 38 68
+    C36 58, 38 50, 42 46
+    C40 56, 44 63, 50 67
+    C56 63, 60 56, 58 46
+    C62 50, 64 58, 62 68
+    C67 63, 72 54, 70 42
+    C68 28, 56 18, 50 8Z"
+    fill="url(#flameGrad)" />
+
+  <!-- Inner orange teardrop flame -->
+  <path d="M50 30
+    C46 38, 43 46, 45 54
+    C46 59, 48 62, 50 63
+    C52 62, 54 59, 55 54
+    C57 46, 54 38, 50 30Z"
+    fill="#f97316" />
+
+  <!-- Anvil horn (left) -->
+  <path d="M18 76 L34 70 L34 78 Z" fill="#374151" />
+
+  <!-- Anvil top face -->
+  <rect x="30" y="69" width="42" height="9" rx="2" fill="#4b5563" />
+
+  <!-- Anvil waist -->
+  <rect x="37" y="78" width="26" height="5" rx="1.5" fill="#374151" />
+
+  <!-- Anvil base -->
+  <rect x="31" y="83" width="38" height="9" rx="3" fill="#4b5563" />
+
+  <defs>
+    <linearGradient id="flameGrad" x1="50" y1="8" x2="50" y2="68" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#a78bfa" />
+      <stop offset="100%" stop-color="#6d28d9" />
+    </linearGradient>
+  </defs>
+</svg>

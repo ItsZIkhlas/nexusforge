@@ -1,0 +1,191 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   NEXUS THEME  —  CSS VARIABLES
+   Change these to restyle the entire application instantly.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* Primary accent ─ buttons, active states, highlights */
+  --primary:          #5c60f5;
+  --primary-hover:    #7173f7;
+  --primary-dim:      rgba(92, 96, 245, 0.12);
+  --primary-border:   rgba(92, 96, 245, 0.28);
+  --primary-text:     #a8abfc;
+
+  /* Secondary accent ─ success, positive signals */
+  --secondary:        #10b981;
+  --secondary-dim:    rgba(16, 185, 129, 0.10);
+  --secondary-border: rgba(16, 185, 129, 0.25);
+  --secondary-text:   #6ee7b7;
+
+  /* Backgrounds */
+  --bg-page:          #07090f;
+  --bg-panel:         #0b0d18;
+  --bg-card:          #0f1221;
+  --bg-card-hover:    #141729;
+  --bg-input:         rgba(255, 255, 255, 0.03);
+  --bg-hover:         rgba(255, 255, 255, 0.03);
+
+  /* Borders */
+  --border:           rgba(255, 255, 255, 0.07);
+  --border-soft:      rgba(255, 255, 255, 0.04);
+  --border-strong:    rgba(255, 255, 255, 0.12);
+
+  /* Typography */
+  --text:             #e4eaf8;
+  --text-2:           #8896b3;
+  --text-3:           #3d4f6b;
+  --text-4:           #1e2d42;
+
+  /* Danger / Warning */
+  --danger:           #f43f5e;
+  --danger-dim:       rgba(244, 63, 94, 0.10);
+  --warning:          #f59e0b;
+  --warning-dim:      rgba(245, 158, 11, 0.10);
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+  body {
+    background: var(--bg-page);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ─── Reusable components (all themed via CSS vars) ──────────────────────────── */
+@layer components {
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+  }
+  .card-hover {
+    transition: border-color 0.15s, background 0.15s;
+    cursor: pointer;
+  }
+  .card-hover:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-strong);
+  }
+
+  .input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 0.625rem;
+    font-size: 13px;
+    background: var(--bg-input);
+    color: var(--text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+  }
+  .input::placeholder { color: var(--text-3); }
+  select.input { color-scheme: dark; }
+  select.input option { background: var(--bg-card); color: var(--text); }
+  .input:focus {
+    border-color: var(--primary-border);
+    box-shadow: 0 0 0 3px rgba(92, 96, 245, 0.08);
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 0.625rem;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 14px rgba(92, 96, 245, 0.25);
+  }
+  .btn-primary:hover {
+    background: var(--primary-hover);
+    box-shadow: 0 6px 20px rgba(92, 96, 245, 0.35);
+  }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    border-radius: 0.625rem;
+    font-size: 13px;
+    font-weight: 500;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .btn-secondary:hover {
+    border-color: var(--border-strong);
+    color: var(--text);
+    background: var(--bg-hover);
+  }
+  .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid transparent;
+  }
+  .badge-primary  { background: var(--primary-dim);  border-color: var(--primary-border);  color: var(--primary-text); }
+  .badge-success  { background: var(--secondary-dim); border-color: var(--secondary-border); color: var(--secondary-text); }
+  .badge-danger   { background: var(--danger-dim);    border-color: rgba(244,63,94,0.25);   color: #fda4af; }
+  .badge-warning  { background: var(--warning-dim);   border-color: rgba(245,158,11,0.25);  color: #fcd34d; }
+  .badge-muted    { background: var(--bg-hover);      border-color: var(--border);          color: var(--text-3); }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+}
+
+/* ─── Scrollbar utilities ────────────────────────────────────────────────────── */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+.thin-scrollbar::-webkit-scrollbar { width: 3px; }
+.thin-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.thin-scrollbar::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+.thin-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+/* ─── Hoverable cards (CSS-only — safe in Server Components) ────────────────── */
+.hov-card {
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+}
+.hov-card:hover { background: var(--bg-card-hover) !important; }
+
+.hov-indigo:hover  { border-color: rgba(92,96,245,0.30)  !important; box-shadow: 0 8px 30px rgba(92,96,245,0.13); }
+.hov-violet:hover  { border-color: rgba(139,92,246,0.30) !important; box-shadow: 0 8px 30px rgba(139,92,246,0.13); }
+.hov-emerald:hover { border-color: rgba(16,185,129,0.30) !important; box-shadow: 0 8px 30px rgba(16,185,129,0.13); }
+.hov-orange:hover  { border-color: rgba(249,115,22,0.30) !important; box-shadow: 0 8px 30px rgba(249,115,22,0.13); }
+.hov-pink:hover    { border-color: rgba(236,72,153,0.30) !important; box-shadow: 0 8px 30px rgba(236,72,153,0.13); }
+.hov-cyan:hover    { border-color: rgba(34,211,238,0.30) !important; box-shadow: 0 8px 30px rgba(34,211,238,0.13); }
+
+/* Show arrow on card hover */
+.hov-card:hover .hov-arrow { opacity: 1; }
+.hov-arrow { opacity: 0; transition: opacity 0.18s; }
+
+/* Bot card — show "Open →" on hover */
+.hov-card:hover .hov-reveal { opacity: 1; }
+.hov-reveal { opacity: 0; transition: opacity 0.18s; }
