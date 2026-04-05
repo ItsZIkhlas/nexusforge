@@ -34,17 +34,17 @@ export async function middleware(request) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Check subscription for all protected routes except /settings and /onboarding
-  if (isProtected && user && !pathname.startsWith('/settings') && !pathname.startsWith('/onboarding')) {
+  // Check subscription for all protected routes except /settings
+  if (isProtected && user && !pathname.startsWith('/settings')) {
     const { data: org } = await supabase
       .from('organizations')
       .select('subscription_status, trial_ends_at')
       .eq('owner_id', user.id)
       .single()
 
-    // No org yet — send them to onboarding to finish setup
+    // No org yet — send back to signup to complete registration
     if (!org) {
-      return NextResponse.redirect(new URL('/onboarding', request.url))
+      return NextResponse.redirect(new URL('/signup', request.url))
     }
 
     const activeStatuses = ['trialing', 'active', 'past_due']
