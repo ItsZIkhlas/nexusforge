@@ -2,15 +2,15 @@
   "crons": [
     {
       "path": "/api/outreach/cron/send",
-      "schedule": "0 * * * *"
+      "schedule": "0 8 * * *"
     },
     {
       "path": "/api/cron/content",
-      "schedule": "0 8 * * 1"
+      "schedule": "0 9 * * 1"
     },
     {
       "path": "/api/cron/video-pipeline",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 10 * * *"
     }
   ]
 }
