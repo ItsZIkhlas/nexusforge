@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 
-const TOS_VERSION = '1.0'
 
 // Called right after signup to create the org.
 // Idempotent — safe to call multiple times.
@@ -46,7 +45,6 @@ export async function POST(request) {
       plan_id:             'starter',
       trial_ends_at:       trialEndsAt.toISOString(),
       tos_agreed_at:       tosAgreedAt ?? new Date().toISOString(),
-      tos_version:         TOS_VERSION,
     })
     .select()
     .single()
