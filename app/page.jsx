@@ -171,6 +171,7 @@ export default function LandingPage() {
           font-family:inherit;
         }
         .nexus-btn-secondary:hover { border-color:rgba(255,255,255,0.22); color:#e4eaf8; transform:translateY(-1px); }
+        .nexus-section { padding-left: 40px; padding-right: 40px; }
         .module-card {
           border-radius:16px; padding:24px; cursor:default;
           transition:transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
@@ -180,11 +181,32 @@ export default function LandingPage() {
           .nexus-nav-links  { display: none !important; }
           .nexus-nav-login  { display: none !important; }
           .nexus-nav-inner  { padding: 0 20px !important; }
-          .nexus-section    { padding-left: 20px !important; padding-right: 20px !important; }
-          .nexus-problem-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
-          .nexus-steps-grid   { grid-template-columns: repeat(2,1fr) !important; gap: 12px !important; margin-top: 40px !important; }
-          .nexus-modules-grid { grid-template-columns: repeat(2,1fr) !important; }
-          .nexus-pricing-grid { grid-template-columns: 1fr !important; max-width: 400px; margin-left: auto !important; margin-right: auto !important; }
+
+          /* Reduce section padding on mobile — left/right owned by class, top/bottom by inline */
+          .nexus-section    { padding-left: 20px !important; padding-right: 20px !important; padding-top: 64px !important; padding-bottom: 64px !important; }
+
+          /* Problem section — stack vertically */
+          .nexus-problem-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+
+          /* Steps — 2 columns with proper gap */
+          .nexus-steps-grid { grid-template-columns: repeat(2,1fr) !important; gap: 10px !important; margin-top: 32px !important; }
+
+          /* Modules — single column so no orphan card */
+          .nexus-modules-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+
+          /* Module card — reduce padding on mobile */
+          .module-card { padding: 18px !important; }
+
+          /* Disable hover lift on touch */
+          .module-card:hover { transform: none !important; }
+          .nexus-btn-primary:hover  { transform: none !important; }
+          .nexus-btn-secondary:hover { transform: none !important; }
+
+          /* Pricing — single column centred */
+          .nexus-pricing-grid { grid-template-columns: 1fr !important; max-width: 380px !important; margin-left: auto !important; margin-right: auto !important; gap: 14px !important; }
+
+          /* Hide decorative floating chips */
+          .hero-float-card  { display: none !important; }
         }
       `}</style>
 
@@ -244,7 +266,7 @@ export default function LandingPage() {
         ].map(({ mod, pos, anim, delay }, fi) => {
           const Icon = mod.icon
           return (
-            <div key={fi} style={{
+            <div key={fi} className="hero-float-card" style={{
               position: 'absolute', display: 'flex', alignItems: 'center', gap: 8,
               padding: '8px 14px', borderRadius: 12,
               background: mod.bg, border: `1px solid ${mod.border}`,
@@ -346,7 +368,7 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════════
           THE PROBLEM
       ══════════════════════════════════════════ */}
-      <section id="problem" className="nexus-section" style={{ position: 'relative', padding: '120px 40px', overflow: 'hidden' }}>
+      <section id="problem" className="nexus-section" style={{ position: 'relative', paddingTop: 120, paddingBottom: 120, overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(244,63,94,0.06) 0%, transparent 70%)' }} />
         <GridOverlay opacity={0.012} />
 
@@ -405,7 +427,7 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════════
           THE SOLUTION
       ══════════════════════════════════════════ */}
-      <section className="nexus-section" style={{ position: 'relative', padding: '120px 40px', overflow: 'hidden' }}>
+      <section className="nexus-section" style={{ position: 'relative', paddingTop: 120, paddingBottom: 120, overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(92,96,245,0.08) 0%, transparent 70%)' }} />
         <GridOverlay opacity={0.013} />
 
@@ -447,7 +469,7 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════════
           MODULES GRID
       ══════════════════════════════════════════ */}
-      <section id="modules" className="nexus-section" style={{ position: 'relative', padding: '120px 40px', overflow: 'hidden' }}>
+      <section id="modules" className="nexus-section" style={{ position: 'relative', paddingTop: 120, paddingBottom: 120, overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(139,92,246,0.06) 0%, transparent 70%)' }} />
         <GridOverlay opacity={0.012} />
 
@@ -485,7 +507,7 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════════
           PRICING
       ══════════════════════════════════════════ */}
-      <section id="pricing" className="nexus-section" style={{ position: 'relative', padding: '120px 40px', overflow: 'hidden' }}>
+      <section id="pricing" className="nexus-section" style={{ position: 'relative', paddingTop: 120, paddingBottom: 120, overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(16,185,129,0.06) 0%, transparent 70%)' }} />
         <GridOverlay opacity={0.012} />
 
@@ -572,7 +594,7 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════════
           FAQ
       ══════════════════════════════════════════ */}
-      <section id="faq" className="nexus-section" style={{ maxWidth: 720, margin: '0 auto', padding: '80px 40px 120px' }}>
+      <section id="faq" className="nexus-section" style={{ maxWidth: 720, margin: '0 auto', paddingTop: 80, paddingBottom: 120 }}>
         <Reveal style={{ textAlign: 'center', marginBottom: 48 }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#5c60f5', marginBottom: 12 }}>FAQ</div>
           <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 800, letterSpacing: '-0.02em', color: '#e4eaf8' }}>Common questions</h2>
@@ -589,7 +611,7 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════════
           FINAL CTA
       ══════════════════════════════════════════ */}
-      <section className="nexus-section" style={{ position: 'relative', overflow: 'hidden', padding: '100px 40px 140px', textAlign: 'center' }}>
+      <section className="nexus-section" style={{ position: 'relative', overflow: 'hidden', paddingTop: 100, paddingBottom: 140, textAlign: 'center' }}>
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(92,96,245,0.10) 0%, transparent 70%)' }} />
         <GridOverlay opacity={0.012} />
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 560, margin: '0 auto' }}>
