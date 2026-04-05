@@ -34,8 +34,7 @@ const CHIP_COLORS = {
   rose:    'border-rose-500/25 bg-rose-500/5 text-rose-300 hover:bg-rose-500/12 hover:border-rose-500/40',
 }
 
-// ── Storage helpers ────────────────────────────────────────────────────────────
-const LS_CONVOS    = 'nexus_advisor_v1_convos'
+// ── Settings storage (localStorage only — device preference) ──────────────────
 const LS_SETTINGS  = 'nexus_advisor_v1_settings'
 const DEFAULT_SETTINGS = { tone: 'direct', memory: '' }
 
@@ -44,6 +43,20 @@ function lsGet(key, fallback) {
 }
 function lsSet(key, val) {
   try { localStorage.setItem(key, JSON.stringify(val)) } catch {}
+}
+
+// ── Conversation API helpers ───────────────────────────────────────────────────
+const api = {
+  list:   ()           => fetch('/api/advisor/conversations').then(r => r.json()),
+  create: (title, messages) => fetch('/api/advisor/conversations', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, messages }),
+  }).then(r => r.json()),
+  update: (id, patch)  => fetch(`/api/advisor/conversations/${id}`, {
+    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch),
+  }).then(r => r.json()),
+  delete: (id)         => fetch(`/api/advisor/conversations/${id}`, { method: 'DELETE' }),
 }
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7) }
@@ -162,14 +175,24 @@ export default function AdvisorClient({ orgName }) {
   const messages = active?.messages ?? []
   const isEmpty  = messages.length === 0
 
-  // ── Bootstrap ──────────────────────────────────────────────────────────────
+  // ── Bootstrap — load from DB ───────────────────────────────────────────────
   useEffect(() => {
-    const stored  = lsGet(LS_CONVOS, [])
-    const cfg     = lsGet(LS_SETTINGS, DEFAULT_SETTINGS)
-    setConvos(stored)
+    const cfg = lsGet(LS_SETTINGS, DEFAULT_SETTINGS)
     setSettings(cfg)
     setDraft(cfg)
-    if (stored.length) setActiveId(stored[0].id)
+
+    api.list().then(data => {
+      if (Array.isArray(data)) {
+        const normalized = data.map(c => ({
+          ...c,
+          createdAt: c.created_at,
+          updatedAt: c.updated_at,
+          messages:  Array.isArray(c.messages) ? c.messages : [],
+        }))
+        setConvos(normalized)
+        if (normalized.length) setActiveId(normalized[0].id)
+      }
+    }).catch(() => {})
   }, [])
 
   // ── Scroll ─────────────────────────────────────────────────────────────────
@@ -186,18 +209,23 @@ export default function AdvisorClient({ orgName }) {
   }, [input])
 
   // ── New conversation ───────────────────────────────────────────────────────
-  const newConvo = useCallback(() => {
-    const id  = uid()
+  const newConvo = useCallback(async () => {
     const now = new Date().toISOString()
-    const c   = { id, title: 'New conversation', messages: [], createdAt: now, updatedAt: now }
-    setConvos(prev => {
-      const next = [c, ...prev]
-      lsSet(LS_CONVOS, next)
-      return next
-    })
-    setActiveId(id)
+    // Optimistic placeholder
+    const placeholder = { id: `tmp-${Date.now()}`, title: 'New conversation', messages: [], createdAt: now, updatedAt: now }
+    setConvos(prev => [placeholder, ...prev])
+    setActiveId(placeholder.id)
     setError(null)
     setInput('')
+
+    const saved = await api.create('New conversation', []).catch(() => null)
+    if (saved?.id) {
+      setConvos(prev => prev.map(c => c.id === placeholder.id
+        ? { ...saved, createdAt: saved.created_at, updatedAt: saved.updated_at, messages: [] }
+        : c
+      ))
+      setActiveId(saved.id)
+    }
   }, [])
 
   // ── Send ───────────────────────────────────────────────────────────────────
@@ -209,34 +237,36 @@ export default function AdvisorClient({ orgName }) {
     let cid  = activeId
     let prev = messages
 
-    if (!cid) {
-      const id  = uid()
-      const now = new Date().toISOString()
-      const c   = { id, title: makeTitle(t), messages: [], createdAt: now, updatedAt: now }
-      setConvos(p => { const n = [c, ...p]; lsSet(LS_CONVOS, n); return n })
-      setActiveId(id)
-      cid  = id
+    if (!cid || cid.startsWith('tmp-')) {
+      // Create a real DB conversation first
+      const saved = await api.create(makeTitle(t), []).catch(() => null)
+      if (!saved?.id) { setError('Failed to create conversation'); return }
+      const newC = { ...saved, createdAt: saved.created_at, updatedAt: saved.updated_at, messages: [] }
+      if (cid?.startsWith('tmp-')) {
+        setConvos(p => p.map(c => c.id === cid ? newC : c))
+      } else {
+        setConvos(p => [newC, ...p])
+      }
+      setActiveId(saved.id)
+      cid  = saved.id
       prev = []
     }
 
     setInput('')
     setError(null)
 
-    const userMsg  = { role: 'user', content: t }
-    const updated  = [...prev, userMsg]
-    const isFirst  = prev.length === 0
+    const userMsg = { role: 'user', content: t }
+    const updated = [...prev, userMsg]
+    const isFirst = prev.length === 0
+    const newTitle = isFirst ? makeTitle(t) : null
 
     // Optimistic update
-    setConvos(p => {
-      const n = p.map(c => c.id !== cid ? c : {
-        ...c,
-        messages: updated,
-        title:    isFirst ? makeTitle(t) : c.title,
-        updatedAt: new Date().toISOString(),
-      })
-      lsSet(LS_CONVOS, n)
-      return n
-    })
+    setConvos(p => p.map(c => c.id !== cid ? c : {
+      ...c,
+      messages:  updated,
+      title:     newTitle ?? c.title,
+      updatedAt: new Date().toISOString(),
+    }))
 
     setLoading(true)
     try {
@@ -248,24 +278,22 @@ export default function AdvisorClient({ orgName }) {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Something went wrong')
 
-      const aiMsg = { role: 'assistant', content: data.content }
-      setConvos(p => {
-        const n = p.map(c => c.id !== cid ? c : {
-          ...c,
-          messages:  [...updated, aiMsg],
-          updatedAt: new Date().toISOString(),
-        })
-        lsSet(LS_CONVOS, n)
-        return n
-      })
+      const aiMsg   = { role: 'assistant', content: data.content }
+      const final   = [...updated, aiMsg]
+
+      setConvos(p => p.map(c => c.id !== cid ? c : {
+        ...c,
+        messages:  final,
+        updatedAt: new Date().toISOString(),
+      }))
+
+      // Persist to DB
+      const patch = { messages: final }
+      if (newTitle) patch.title = newTitle
+      api.update(cid, patch).catch(() => {})
     } catch (err) {
       setError(err.message)
-      // Rollback
-      setConvos(p => {
-        const n = p.map(c => c.id !== cid ? c : { ...c, messages: prev })
-        lsSet(LS_CONVOS, n)
-        return n
-      })
+      setConvos(p => p.map(c => c.id !== cid ? c : { ...c, messages: prev }))
     } finally {
       setLoading(false)
     }
@@ -278,9 +306,9 @@ export default function AdvisorClient({ orgName }) {
   const deleteConvo = (id, e) => {
     e.stopPropagation()
     const next = convos.filter(c => c.id !== id)
-    lsSet(LS_CONVOS, next)
     setConvos(next)
     if (activeId === id) setActiveId(next[0]?.id ?? null)
+    if (!id.startsWith('tmp-')) api.delete(id).catch(() => {})
   }
 
   const saveSettings = () => {
