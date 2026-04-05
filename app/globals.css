@@ -52,12 +52,23 @@
 @layer base {
   html {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    /* Prevent font-size inflation on landscape rotation (iOS) */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
   body {
     background: var(--bg-page);
     color: var(--text);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Remove tap flash on iOS */
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent pull-to-refresh bouncing on the body */
+    overscroll-behavior-y: none;
+  }
+  /* Prevent double-tap zoom on buttons and interactive elements */
+  button, a, [role="button"] {
+    touch-action: manipulation;
   }
 }
 
@@ -83,11 +94,15 @@
     padding: 10px 14px;
     border: 1px solid var(--border);
     border-radius: 0.625rem;
-    font-size: 13px;
+    /* 16px minimum prevents iOS from zooming on focus */
+    font-size: 16px;
     background: var(--bg-input);
     color: var(--text);
     transition: border-color 0.15s, box-shadow 0.15s;
     outline: none;
+    /* Prevent iOS inner shadow on inputs */
+    -webkit-appearance: none;
+    appearance: none;
   }
   .input::placeholder { color: var(--text-3); }
   select.input { color-scheme: dark; }
@@ -95,6 +110,10 @@
   .input:focus {
     border-color: var(--primary-border);
     box-shadow: 0 0 0 3px rgba(92, 96, 245, 0.08);
+  }
+  /* On larger screens, scale font back down visually */
+  @media (min-width: 768px) {
+    .input { font-size: 13px; }
   }
 
   .btn-primary {
