@@ -15,7 +15,7 @@ export default async function DashboardLayout({ children }) {
     .eq('owner_id', user.id)
     .single()
 
-  if (!org) redirect('/onboarding')
+  if (!org) redirect('/signup')
 
   const initials = user.email[0].toUpperCase()
   const username = user.email.split('@')[0]
