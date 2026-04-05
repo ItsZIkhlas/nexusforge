@@ -4,20 +4,19 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Zap } from 'lucide-react'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [resetSent, setResetSent] = useState(false)
+  const [email,        setEmail]        = useState('')
+  const [password,     setPassword]     = useState('')
+  const [error,        setError]        = useState('')
+  const [loading,      setLoading]      = useState(false)
+  const [resetSent,    setResetSent]    = useState(false)
   const [resetLoading, setResetLoading] = useState(false)
   const router = useRouter()
 
   async function handleForgotPassword() {
     if (!email.trim()) {
-      setError('Enter your email address above, then click Forgot password.')
+      setError('Enter your email address first, then click Forgot password.')
       return
     }
     setResetLoading(true)
@@ -44,13 +43,14 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/dashboard')
     router.refresh()
+    router.push('/dashboard')
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 w-full max-w-sm shadow-2xl shadow-black/40">
+
         <div className="text-center mb-7">
           <div className="flex items-center justify-center gap-2 mb-3">
             <img src="/logo.svg" alt="NexusForge" className="w-9 h-9" />
@@ -103,8 +103,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-indigo-600 text-white rounded-lg font-medium
-              hover:bg-indigo-500 disabled:opacity-60 transition mt-1"
+            className="w-full py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-500 disabled:opacity-60 transition mt-1"
           >
             {loading ? 'Signing in…' : 'Sign in'}
           </button>

@@ -2,8 +2,9 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
 export async function middleware(request) {
-  const response = NextResponse.next({ request })
   const { pathname } = request.nextUrl
+
+  const response = NextResponse.next({ request })
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -20,9 +21,21 @@ export async function middleware(request) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // Always allow auth pages through — never redirect on /login or /signup
+  const isAuthPage = pathname === '/login' || pathname === '/signup'
+  if (isAuthPage) {
+    return response
+  }
 
-  // All dashboard module routes require auth
+  // Safely get the user — invalid tokens must not crash middleware
+  let user = null
+  try {
+    const { data } = await supabase.auth.getUser()
+    user = data?.user ?? null
+  } catch {
+    user = null
+  }
+
   const protectedPrefixes = [
     '/dashboard', '/crm', '/pipeline', '/leads',
     '/outreach', '/websites', '/content', '/analytics',
@@ -30,11 +43,12 @@ export async function middleware(request) {
   ]
   const isProtected = protectedPrefixes.some(p => pathname.startsWith(p))
 
+  // Not logged in → login
   if (isProtected && !user) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Check subscription for all protected routes except /settings
+  // Logged in → check subscription
   if (isProtected && user && !pathname.startsWith('/settings')) {
     const { data: org } = await supabase
       .from('organizations')
@@ -42,29 +56,22 @@ export async function middleware(request) {
       .eq('owner_id', user.id)
       .single()
 
-    // No org yet — send back to signup to complete registration
     if (!org) {
       return NextResponse.redirect(new URL('/signup', request.url))
     }
 
-    const activeStatuses = ['trialing', 'active', 'past_due']
     const isTrialingAndValid =
       org.subscription_status === 'trialing' &&
       org.trial_ends_at &&
       new Date(org.trial_ends_at) > new Date()
 
     const hasAccess =
-      activeStatuses.includes(org.subscription_status) &&
+      ['trialing', 'active', 'past_due'].includes(org.subscription_status) &&
       (org.subscription_status !== 'trialing' || isTrialingAndValid)
 
     if (!hasAccess) {
       return NextResponse.redirect(new URL('/pricing', request.url))
     }
-  }
-
-  // Redirect authenticated users away from auth pages
-  if (user && (pathname === '/login' || pathname === '/signup')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
   return response
